@@ -49,6 +49,11 @@ describe("E2E test", () => {
     expect(list[0]).toEqual("dir_b/sample01.png");
   }
 
+  function doAssertionIncludeDirectory() {
+    const list = glob.sync("dir_b/**", { cwd: dirsB.base }).sort((a, b) => a < b ? -1 : a === b ? 0 : 1);
+    expect(list).toEqual(["dir_b", "dir_b/nest_dir", "dir_b/nest_dir/sample01.png", "dir_b/sample01.png"]);
+  }
+
   test("case 1: fetch files from default publish directory", async () => {
     await doAction("abcdef12345");
     doAssertion();
@@ -59,5 +64,12 @@ describe("E2E test", () => {
     doAssertion();
     expect(existsDir("/tmp/.reg-assets/abcdef12345")).toBeTruthy();
     await rimraf("/tmp/.reg-assets");
+  });
+
+  test("case 2: fetch files from specified publish directory include directory", async () => {
+    await doAction("abcdef12345", { path: "/tmp/.reg-assets" });
+    doAssertionIncludeDirectory();
+    expect(existsDir("/tmp/.reg-assets/abcdef12345")).toBeTruthy();
+    // await rimraf("/tmp/.reg-assets");
   });
 });
